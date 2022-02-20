@@ -9,7 +9,7 @@ const morgan = require('morgan');
 // ===== DB
 const connectDB = require('./db/connect');
 
-// ===== routers
+// ===== ROUTERS
 const userRoute = require('./routes/users');
 const authRoute = require('./routes/auth');
 const postRoute = require('./routes/posts');
