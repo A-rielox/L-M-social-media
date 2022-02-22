@@ -31,7 +31,7 @@ router.put('/:id', async (req, res) => {
    }
 });
 
-// delete user
+// delete user // '/api/users'
 router.delete('/:id', async (req, res) => {
    // solo si es el o el admin pueden hacer update
    if (req.body.userId === req.params.id || req.body.isAdmin) {
@@ -47,7 +47,7 @@ router.delete('/:id', async (req, res) => {
    }
 });
 
-// get a user
+// get a user // '/api/users'
 router.get('/', async (req, res) => {
    const userId = req.query.userId;
    const username = req.query.username;
@@ -58,12 +58,38 @@ router.get('/', async (req, res) => {
          ? await User.findById(userId)
          : await User.findOne({ username });
       // ⭐                                                          👇
-      const { password, updatedAt, _id, createdAt, isAdmin, __v, ...other } =
+      const { password, updatedAt, createdAt, isAdmin, __v, ...other } =
          user._doc;
 
       res.status(200).json(other);
    } catch (error) {
       res.status(500).json(error);
+   }
+});
+
+// get friend // '/api/users'
+router.get('/friends/:userId', async (req, res) => {
+   try {
+      const user = await User.findById(req.params.userId);
+
+      // va a ser un array donde c/elemento es todo el user-friend
+      const friends = await Promise.all(
+         user.followings.map(friendId => {
+            return User.findById(friendId);
+         })
+      );
+
+      // va a ser un array donde c/elemento es solo lo seleccionado
+      let friendList = [];
+
+      friends.map(friend => {
+         const { _id, username, profilePicture } = friend;
+         friendList.push({ _id, username, profilePicture });
+      });
+
+      res.status(200).json(friendList);
+   } catch (err) {
+      res.status(500).json(err);
    }
 });
 
